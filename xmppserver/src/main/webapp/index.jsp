@@ -51,6 +51,7 @@
 <%@ page import="org.apache.http.impl.client.HttpClients" %>
 <%@ page import="org.apache.http.client.methods.CloseableHttpResponse" %>
 <%@ page import="org.apache.http.client.methods.HttpGet" %>
+<%@ page import="org.apache.http.client.config.RequestConfig" %>
 <%@ page import="com.rometools.rome.io.SyndFeedInput" %>
 <%@ page import="com.rometools.rome.feed.synd.SyndFeed" %>
 <%@ page import="com.rometools.rome.feed.synd.SyndEntry" %>
@@ -424,6 +425,13 @@
                         routePlanner = new DefaultRoutePlanner(null);
                     }
                     final HttpGet httpGet = new HttpGet(blogFeedRSS);
+                    
+                    //Setup the request timeout to avoid get stuck
+                    RequestConfig.Builder requestConfig = RequestConfig.custom();
+	                requestConfig.setConnectTimeout(10 * 1000);
+	                requestConfig.setConnectionRequestTimeout(10 * 1000);
+	                requestConfig.setSocketTimeout(10 * 1000);
+	                httpGet.setConfig(requestConfig.build());
 
                     try (final CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
                          final CloseableHttpResponse httpResponse = client.execute(httpGet);
